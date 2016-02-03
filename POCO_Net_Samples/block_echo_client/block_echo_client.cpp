@@ -1,5 +1,4 @@
 #include "Poco/Net/Net.h"
-#include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/SocketAddress.h"
 #include "Poco/Timespan.h"
