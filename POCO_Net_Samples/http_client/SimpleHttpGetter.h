@@ -6,14 +6,14 @@
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/StreamCopier.h>
 
-class SimpleHTTPGetter
+class SimpleHttpGetter
 {
 public:
-	SimpleHTTPGetter(const std::string& host, Poco::UInt16 port = Poco::Net::HTTPSession::HTTP_PORT) : mHost(host), mPort(port)
+	SimpleHttpGetter(const std::string& host, Poco::UInt16 port = Poco::Net::HTTPSession::HTTP_PORT) : mHost(host), mPort(port)
 	{
 	}
 
-	~SimpleHTTPGetter()
+	~SimpleHttpGetter()
 	{
 	}
 
@@ -39,9 +39,9 @@ public:
 	}
  
 private:
-	SimpleHTTPGetter();
-	SimpleHTTPGetter(const SimpleHTTPGetter&);
-	SimpleHTTPGetter& operator = (const SimpleHTTPGetter&);
+	SimpleHttpGetter();
+	SimpleHttpGetter(const SimpleHttpGetter&);
+	SimpleHttpGetter& operator = (const SimpleHttpGetter&);
  
 	std::string		mHost;
 	Poco::UInt16	mPort;

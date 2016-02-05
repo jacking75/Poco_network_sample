@@ -1,8 +1,8 @@
 #include <string>
 #include <iostream>
 
-#include "SimpleHTTPGetter.h"
-#include "SimpleServerRequest.h"
+#include "SimpleHttpGetter.h"
+#include "SimpleHttpPoster.h"
 
 
 int main()
@@ -13,7 +13,7 @@ int main()
 		getter.Get(uri.getPath(), std::cout);
 	}*/
 
-	SimpleServerRequest poster;
+	SimpleHttpPoster poster;
 	auto result = poster.Start("http://localhost:20401/Service/TestRequestStream", 1000);
 	std::cout << result << std::endl;
  

@@ -4,8 +4,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SimpleHTTPGetter.h" />
-    <ClInclude Include="SimpleServerRequest.h" />
-    <ClInclude Include="StopWatch.h" />
+    <ClInclude Include="SimpleHttpPoster.h" />
+    <ClInclude Include="SimpleHttpGetter.h" />
   </ItemGroup>
 </Project>

@@ -10,20 +10,15 @@
 #include <Poco/Net/HTMLForm.h>
 #include <Poco/StreamCopier.h>
 
-#include "StopWatch.h"
 
-
-class SimpleServerRequest
+class SimpleHttpPoster
 {
 public:
-	SimpleServerRequest() { }
-	~SimpleServerRequest() {}
+	SimpleHttpPoster() { }
+	~SimpleHttpPoster() {}
 
 	bool Start(const std::string& url, int reqCount)
 	{
-		StopWatch secondCheck;
-		secondCheck.Start();
-
 		for(auto i = 0; i < reqCount; ++i)
 		{
 			Poco::URI uri(url);
@@ -36,8 +31,6 @@ public:
 
 			//std::cout << resultPacket << std::endl;
 		}
-
-		std::cout << "총 소요시간(초): " << secondCheck.End() << std::endl;
 
 		return true;
 	}
