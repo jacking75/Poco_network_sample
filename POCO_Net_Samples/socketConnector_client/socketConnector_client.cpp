@@ -22,19 +22,28 @@ public:
 		
 		m_reactor.addEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable));
-
+		
 		SendMessage();
 	}
 
 	~Session()
 	{
-		std::cout << "~Session" << std::endl;
+		try
+		{
+			std::cout << "~Session" << std::endl;
 
-		m_reactor.removeEventHandler(m_socket,
-			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable)
-			);
+			m_reactor.removeEventHandler(m_socket,
+				Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable)
+				);
+
+			m_reactor.stop();
+		}
+		catch (Poco::Exception& exc)
+		{
+			std::cerr <<  exc.displayText() << std::endl;
+		}
 	}
-
+	
 	void onReadable(Poco::Net::ReadableNotification* pNf)
 	{
 		pNf->release();
@@ -47,13 +56,16 @@ public:
 			std::cout << "서버에서 받은 메시지: " << buffer << std::endl;
 			
 			m_socket.close();
+			delete this;					
 		}
 		else
 		{
 			std::cout << "onReadable disconnected..." << std::endl;
-			delete this;  
+			delete this;
 		}
 	}
+
+	
 
 	void SendMessage()
 	{
@@ -82,5 +94,7 @@ int main()
 	std::cout << "To Server: " << "connecting..." << std::endl;
 	reactor.run();
 
+	std::cout << "To Server: " << "closed." << std::endl;
+	getchar();
 	return 0;
 }
