@@ -3,7 +3,7 @@
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/SocketAddress.h"
-#include "Poco/Timespan.h"
+
 
 const Poco::UInt16 PORT = 32452;
 
@@ -17,7 +17,6 @@ int main()
 	std::cout << "서버 초기화 완료. 클라이언트 접속 대기 중..." << std::endl;
 
 
-	Poco::Timespan span(250000);
 	while (true)
 	{
 		Poco::Net::StreamSocket ss = server_sock.acceptConnection();
