@@ -37,7 +37,7 @@ int main()
 	try
 	{
 		ss.connectNB(Poco::Net::SocketAddress("localhost", PORT));
-
+		/*
 		char szMessage[] = "Send Message From Client";
 		auto nMsgLen = (int)strnlen_s(szMessage, 128 - 1);
 
@@ -73,7 +73,7 @@ int main()
 			}
 		}
 
-		ss.close();
+		ss.close(); */
 	}
 	catch (Poco::Exception& exc)
 	{

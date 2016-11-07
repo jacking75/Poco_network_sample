@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include "Poco/Net/Net.h"
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/StreamSocket.h"
@@ -17,37 +19,63 @@ int main()
 
 	std::cout << "서버 초기화 완료. 클라이언트 접속 대기 중..." << std::endl;
 
+	Poco::Net::Socket::SocketList connectedSockList;
+	connectedSockList.push_back(server_sock);
 
-	Poco::Timespan span(250000);
 	while (true)
 	{
-		Poco::Net::StreamSocket ss = server_sock.acceptConnection();
-		try
-		{
-			char buffer[256] = { 0, };
-			int n = ss.receiveBytes(buffer, sizeof(buffer));
-			std::cout << "클라이언트에서 받은 메시지: " << buffer << std::endl;
+		Poco::Net::Socket::SocketList readList(connectedSockList.begin(), connectedSockList.end());
+		Poco::Net::Socket::SocketList writeList(connectedSockList.begin(), connectedSockList.end());
+		Poco::Net::Socket::SocketList exceptList(connectedSockList.begin(), connectedSockList.end());
+		
+		Poco::Timespan timeout(1);
 
-			while (n > 0)
+		auto count = Poco::Net::Socket::select(readList, writeList, exceptList, timeout);
+
+		if (count == 0) {
+			continue;
+		}
+
+		Poco::Net::Socket::SocketList delSockList;
+
+		for (auto& readSock : readList)
+		{
+			if (server_sock == readSock)
 			{
-				Poco::Thread::sleep(3000); // 3초
+				auto newSock = server_sock.acceptConnection();
+				connectedSockList.push_back(newSock);
 
-				char szSendMessage[256] = { 0, };
-				sprintf_s(szSendMessage, 128 - 1, "Re:%s", buffer);
-				auto nMsgLen = (int)strnlen_s(szSendMessage, 256 - 1);
-
-				ss.sendBytes(szSendMessage, nMsgLen);
-
-
-				n = ss.receiveBytes(buffer, sizeof(buffer));
+				std::cout << "새 클라이언트에서 접속" << std::endl;
 			}
+			else
+			{
+				char buffer[256] = { 0, };
+				auto n = ((Poco::Net::StreamSocket*)&readSock)->receiveBytes(buffer, sizeof(buffer));
 
-			std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
+				if (n != 0) {
+					std::cout << "클라이언트에서 받은 메시지: " << buffer << std::endl;
+				}
+				else {
+					std::cout << "클라이언트와 연결이 끊어졌습니다" << std::endl;
+
+					delSockList.push_back(readSock);
+					
+				}
+			}
 		}
-		catch (Poco::Exception& exc)
+
+		for (auto& delSock : delSockList)
 		{
-			std::cerr << "EchoServer: " << exc.displayText() << std::endl;
-		}
+			auto delIter = std::find_if(connectedSockList.begin(), connectedSockList.end(), 
+										[&delSock](auto& sock) { return delSock == sock ? true : false;}
+									);
+
+			if (delIter != connectedSockList.end()) {
+				connectedSockList.erase(delIter);
+				
+				std::cout << "connectedSockList 에서 socket 제거" << std::endl;
+			}
+		}		
 	}
 
 	getchar();
