@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include <Poco/Net/SocketAddress.h>
-#include <Poco/Net/MulticastSocket.h>
+#include <Poco/Net/DatagramSocket.h>
 
 
 const Poco::UInt16 MY_PORT = 32451;
@@ -13,8 +13,7 @@ const Poco::UInt16 OTHER_PORT = 32452;
 int main()
 {
 	Poco::Net::DatagramSocket sock(MY_PORT);
-	//Poco::Net::SocketAddress client;
-
+	
 	try
 	{
 		for (int i = 0; i < 7; ++i)
@@ -42,20 +41,7 @@ int main()
 	{
 		std::cout << "서버 접속 실패: " << exc.displayText() << std::endl;
 	}
-	//while (true)
-	//{
-	//	int bytes_read = 0;
-	//	char buffer[254] = {};
-
-	//	//BLOCKING FUNCTION !
-	//	bytes_read = the_sock.receiveFrom(buffer, 254, client);
-
-	//	if (bytes_read != 0)
-	//	{
-	//		std::cout << buffer << " from " << client.host().toString() << ":" << client.port() << std::endl;
-	//		the_sock.sendTo(buffer, bytes_read, client, 0);
-	//	}
-	//}
+	
 
 	getchar();
 	return 0;
