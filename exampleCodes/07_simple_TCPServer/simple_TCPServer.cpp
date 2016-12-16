@@ -1,10 +1,8 @@
-// 출처: http://codeit.blog.fc2.com/blog-entry-6.html
-// 간단 TCP 서버
 
 #include <iostream>
 
-#include <Poco/Net/ServerSocket.h>
-#include <Poco/Net/StreamSocket.h>
+//#include <Poco/Net/ServerSocket.h>
+//#include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnection.h>
 #include <Poco/Net/TCPServerConnectionFactory.h>
@@ -15,8 +13,13 @@ const Poco::UInt16 SERVER_PORT = 32452;
 class Session : public Poco::Net::TCPServerConnection
 {
 public:
-	Session(const Poco::Net::StreamSocket &socket) : TCPServerConnection(socket) {    }
-	virtual ~Session() {    }
+	Session(const Poco::Net::StreamSocket &socket) : TCPServerConnection(socket) {    
+		std::cout << "Session 객체 생성" << std::endl;
+	}
+
+	virtual ~Session() {    
+		std::cout << "Session 객체 소멸" << std::endl;
+	}
 
 	virtual void run()
 	{
@@ -50,8 +53,8 @@ public:
 class SessionFactory : public Poco::Net::TCPServerConnectionFactory
 {
 public:
-	SessionFactory() {    }
-	virtual ~SessionFactory() {    }
+	SessionFactory() { }
+	virtual ~SessionFactory() { }
 
 	virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket &socket)
 	{
@@ -59,25 +62,23 @@ public:
 	}
 };
 
-int main(int, char**)
+int main()
 {
-	Poco::Net::ServerSocket sock(SERVER_PORT);
-	//sock.listen();
-
+	Poco::Net::ServerSocket sock(SERVER_PORT);	
 	Poco::Net::TCPServer server(new SessionFactory(), sock);
 
 	std::cout << "Simple TCP Server Application." << std::endl;	
-	printf("maxThreads:%d, maxConcurrentConnections:%d\n", 
-		        server.maxThreads(), server.maxConcurrentConnections());
+	std::cout << "maxThreads: " << server.maxThreads() << std::endl;	 
+	std::cout << "maxConcurrentConnections: " << server.maxConcurrentConnections() << std::endl;
 	
 	
 	server.start();
 	
+	std::cout << "start() 후 프로그램 종료가 되지 않도록 대기 하기" << std::endl;
 	while (true)
 	{		
 		Poco::Thread::sleep(1);
 	}
 
-	server.stop();
 	return 0;
 }
