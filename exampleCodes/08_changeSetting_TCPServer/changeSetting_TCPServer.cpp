@@ -85,7 +85,7 @@ int main()
 	std::cout << "start() 후 프로그램 종료가 되지 않도록 대기 하기" << std::endl;
 	while (true)
 	{
-		Poco::Thread::sleep(2000);
+		Poco::Thread::sleep(5000);
 
 		PrintServerStatus(server);
 	}

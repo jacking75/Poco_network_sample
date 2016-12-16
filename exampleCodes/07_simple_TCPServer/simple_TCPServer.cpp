@@ -1,8 +1,5 @@
-
 #include <iostream>
 
-//#include <Poco/Net/ServerSocket.h>
-//#include <Poco/Net/StreamSocket.h>
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnection.h>
 #include <Poco/Net/TCPServerConnectionFactory.h>
