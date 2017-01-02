@@ -3,7 +3,4 @@
   <ItemGroup>
     <ClCompile Include="reactor_EcohoServerEx.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="reactor_EcohoServerEx.properties" />
-  </ItemGroup>
 </Project>

@@ -145,9 +145,6 @@
   <ItemGroup>
     <ClCompile Include="reactor_EcohoServerEx.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="reactor_EcohoServerEx.properties" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -15,6 +15,7 @@ namespace csharp_test_client
         ClientSimpleTcp Network = new ClientSimpleTcp();
 
         bool IsNetworkThreadRunning = false;
+        bool IsBackGroundProcessRunning = false;
 
         System.Threading.Thread NetworkReadThread = null;
         System.Threading.Thread NetworkSendThread = null;
@@ -38,6 +39,7 @@ namespace csharp_test_client
             NetworkSendThread = new System.Threading.Thread(this.NetworkSendProcess);
             NetworkSendThread.Start();
 
+            IsBackGroundProcessRunning = true;
             dispatcherUITimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherUITimer.Tick += new EventHandler(BackGroundProcess);
             dispatcherUITimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
@@ -46,6 +48,14 @@ namespace csharp_test_client
             btnDisconnect.Enabled = false;
 
             DevLog.Write("프로그램 시작 !!!", LOG_LEVEL.INFO);
+        }
+
+        private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            IsNetworkThreadRunning = false;
+            IsBackGroundProcessRunning = false;
+
+            Network.Close();
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
@@ -99,6 +109,7 @@ namespace csharp_test_client
             {
                 if (Network.IsConnected() == false)
                 {
+                    System.Threading.Thread.Sleep(1);
                     continue;
                 }
 
@@ -119,6 +130,8 @@ namespace csharp_test_client
         {
             while (IsNetworkThreadRunning)
             {
+                System.Threading.Thread.Sleep(1);
+
                 if (Network.IsConnected() == false)
                 {
                     continue;
@@ -147,8 +160,10 @@ namespace csharp_test_client
             // 너무 이 작업만 할 수 없으므로 일정 작업 이상을 하면 일단 패스한다.
             int logWorkCount = 0;
 
-            while (true)
+            while (IsBackGroundProcessRunning)
             {
+                System.Threading.Thread.Sleep(1);
+
                 string msg;
 
                 if (DevLog.GetLog(out msg))
@@ -188,5 +203,7 @@ namespace csharp_test_client
 
             labelStatus.Text = "서버 접속이 끊어짐";
         }
+
+      
     }
 }

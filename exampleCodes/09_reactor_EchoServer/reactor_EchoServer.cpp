@@ -19,6 +19,7 @@ public:
 											Poco::Net::ReadableNotification>( 
 												*this, &Session::onReadable)
 								);
+
 	}
 
 	~Session()

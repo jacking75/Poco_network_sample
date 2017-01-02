@@ -21,7 +21,7 @@ public:
 		m_Reactor.addEventHandler(m_Socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable));
 
-		// 클라이언트가 접속을 끊었을 때 발생하는 이벤트
+		// SocketReactor가 셧다운 할 때 발생하는 이벤트
 		m_Reactor.addEventHandler(m_Socket, 
 			Poco::Observer<Session, Poco::Net::ShutdownNotification>(*this, &Session::onShutdown)); 
 		
@@ -29,7 +29,7 @@ public:
 		m_Reactor.addEventHandler(m_Socket, 
 			Poco::Observer<Session, Poco::Net::ErrorNotification>(*this, &Session::onError)); 
 		
-		// Poco::Net::select 호출 시 발생하는 이벤트
+		// Poco::Net::select 호출 시 react 할 소켓이 없는 경우 발생하는 이벤트
 		m_Reactor.addEventHandler(m_Socket, 
 			Poco::Observer<Session, Poco::Net::IdleNotification>(*this, &Session::onIdle)); 
 		
@@ -42,14 +42,26 @@ public:
 	~Session()
 	{
 		std::cout << m_PeerAddress << " disconnected ..." << std::endl;
+
 		m_Reactor.removeEventHandler(m_Socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable)
 			);
 
-		m_Reactor.removeEventHandler(m_Socket, Poco::Observer<Session, Poco::Net::ShutdownNotification>(*this, &Session::onShutdown));
-		m_Reactor.removeEventHandler(m_Socket, Poco::Observer<Session, Poco::Net::ErrorNotification>(*this, &Session::onError));
-		m_Reactor.removeEventHandler(m_Socket, Poco::Observer<Session, Poco::Net::IdleNotification>(*this, &Session::onIdle));
-		m_Reactor.removeEventHandler(m_Socket, Poco::Observer<Session, Poco::Net::TimeoutNotification>(*this, &Session::onTimeout));
+		m_Reactor.removeEventHandler(m_Socket, 
+			Poco::Observer<Session, Poco::Net::ShutdownNotification>(*this, &Session::onShutdown)
+			);
+
+		m_Reactor.removeEventHandler(m_Socket, 
+			Poco::Observer<Session, Poco::Net::ErrorNotification>(*this, &Session::onError)
+			);
+
+		m_Reactor.removeEventHandler(m_Socket, 
+			Poco::Observer<Session, Poco::Net::IdleNotification>(*this, &Session::onIdle)
+			);
+
+		m_Reactor.removeEventHandler(m_Socket, 
+			Poco::Observer<Session, Poco::Net::TimeoutNotification>(*this, &Session::onTimeout)
+			);
 	}
 
 	void onReadable(Poco::Net::ReadableNotification* pNf)
@@ -78,6 +90,8 @@ public:
 	void onShutdown(Poco::Net::ShutdownNotification* pNf)
 	{
 		pNf->release();
+
+		std::cout << "onShutdown 발생" << std::endl;
 	}
 
 	void onError(Poco::Net::ErrorNotification* pNf)

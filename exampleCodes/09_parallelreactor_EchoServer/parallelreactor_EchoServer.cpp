@@ -1,17 +1,7 @@
-// 참고: http://www.cnblogs.com/Leo-Forest/archive/2013/05/16/3082218.html
 #include <iostream>
-//#include <cstdlib>
 
 #include <Poco/Net/SocketReactor.h>
-#include <Poco/Net/SocketNotification.h>
-#include <Poco/Net/SocketConnector.h>
 #include <Poco/Net/ParallelSocketAcceptor.h>
-#include <Poco/Net/SocketAcceptor.h>
-#include <Poco/Net/StreamSocket.h>
-#include <Poco/Net/ServerSocket.h>
-#include <Poco/Net/SocketAddress.h>
-#include <Poco/Observer.h>
-#include <Poco/Thread.h>
 
 const Poco::UInt16 PORT = 32452;
 
@@ -23,18 +13,22 @@ public:
 	{
 		m_peerAddress = socket.peerAddress().toString();
 		std::cout << "connection from " << m_peerAddress << " ..." << std::endl;
+
 		m_reactor.addEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable));
 
-		//Poco::Thread::sleep(10000); // 멀티스레드 아님
+		//Poco::Thread::sleep(10000); 주석을 풀명 10초간 다른 클라이언트 접속 처리를 대기
 	}
 
 	~Session()
 	{
 		std::cout << m_peerAddress << " disconnected ..." << std::endl;
+
 		m_reactor.removeEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable)
 			);
+
+		Poco::Thread::sleep(10000);
 	}
 
 	void onReadable(Poco::Net::ReadableNotification* pNf)
@@ -54,6 +48,7 @@ public:
 			m_socket.sendBytes(szSendMessage, nMsgLen);
 
 			Poco::Thread::sleep(10000); // 스레드별로 클라이언트 할당되고, 서로 다른 스레드에 접속된 클라이언트는 간섭하지 않는다
+			std::cout << "onReadable 대기 끝" << buffer << std::endl;
 		}
 		else
 		{
