@@ -1,6 +1,11 @@
 #include <string>
 #include <iostream>
 
+#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/Net/HTMLForm.h>
+#include <Poco/StreamCopier.h>
 
 int	Get()
 {
