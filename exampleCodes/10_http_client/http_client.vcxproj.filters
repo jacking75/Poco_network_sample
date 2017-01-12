@@ -3,8 +3,4 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="SimpleHttpPoster.h" />
-    <ClInclude Include="SimpleHttpGetter.h" />
-  </ItemGroup>
 </Project>
