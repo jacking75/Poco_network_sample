@@ -49,8 +49,6 @@ public:
 
 	Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request)
 	{
-		std::cout << "SimpleRequestHandlerFactory: " << request.getURI() << std::endl;
-
 		return new FormRequestHandler();
 	}
 };
