@@ -6,48 +6,74 @@
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 
-#include <Poco/File.h>
+#include <Poco/Net/WebSocket.h>
+#include <Poco/Net/NetException.h>
 
-
-class NotFileHandler : public Poco::Net::HTTPRequestHandler
+class WebSocketRequestHandler : public Poco::Net::HTTPRequestHandler
 {
 public:
-
-	void handleRequest(Poco::Net::HTTPServerRequest& request,
+	void handleRequest(Poco::Net::HTTPServerRequest& request, 
 						Poco::Net::HTTPServerResponse& response)
 	{
-		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
-		response.setContentType("text/html");
+		try
+		{
+			Poco::Net::WebSocket ws(request, response);
+			
+			std::cout << "WebSocket connection established" << std::endl;
+			
+			int flags = 0;
+			int n = 0;
 
-		std::ostream& ostr = response.send();
-		ostr << "<html>";
-		ostr << "<head><title>Simple WebServer powered by POCO</title></head>";
-		ostr << "<body>Error. No Fill<br />";
-		ostr << "YOUR REQUEST=" << request.getURI() << "<br />";
-		ostr << "YOUR ADDRESS=" << request.clientAddress().toString() << "<br />";
-		ostr << "</body>";
-		ostr << "<html>";
+			do
+			{
+				char buffer[1024] = { 0, };
+				
+				n = ws.receiveFrame(buffer, sizeof(buffer), flags);
+				
+				if (n > 0)
+				{
+					char log[1024] = { 0, };
+					sprintf_s(log, 1024, "Frame received (length=%d, flags=0x%x).", n, unsigned(flags));
+					std::cout << log << std::endl;
+
+					ws.sendFrame(buffer, n, flags);
+				}
+			} while (n > 0 || (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
+			
+			std::cout << "WebSocket connection closed." << std::endl;
+		}
+		catch (Poco::Net::WebSocketException& exc)
+		{
+			std::cout << exc.displayText() << std::endl;
+
+			switch (exc.code())
+			{
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
+				response.set("Sec-WebSocket-Version", Poco::Net::WebSocket::WEBSOCKET_VERSION);
+				// fallthrough
+			case Poco::Net::WebSocket::WS_ERR_NO_HANDSHAKE:
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_VERSION:
+			case Poco::Net::WebSocket::WS_ERR_HANDSHAKE_NO_KEY:
+				response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_BAD_REQUEST);
+				response.setContentLength(0);
+				response.send();
+			}
+		}
 	}
 };
 
-class FileRequestHandler : public Poco::Net::HTTPRequestHandler
+class DummyRequestHandler : public Poco::Net::HTTPRequestHandler
 {
 public:
 
 	void handleRequest(Poco::Net::HTTPServerRequest& request,
-					Poco::Net::HTTPServerResponse& response)
+		Poco::Net::HTTPServerResponse& response)
 	{
-		try 
-		{
-			std::cout << "FileRequestHandler: " << request.getURI() << std::endl;
+		std::cout << "DummyRequestHandler: " << request.getURI() << std::endl;
 
-			std::string fpass = "." + request.getURI();			
-			response.sendFile(fpass, "text/html");
-		}
-		catch (Poco::Exception& exc)
-		{
-			std::cout << "FileRequestHandler: " << exc.displayText() << std::endl;
-		}
+		response.setStatusAndReason(Poco::Net::HTTPResponse::HTTP_OK);
+		const char * data = "Ok.\n";
+		response.sendBuffer(data, strlen(data));
 	}
 };
 
@@ -59,42 +85,25 @@ public:
 	{
 		std::cout << "SimpleRequestHandlerFactory: " << request.getURI() << std::endl;
 
-		std::string fpass = "." + request.getURI();
-
-		Poco::File f(fpass);
-
-		if (!f.exists() || !f.isFile()) {
-			return new NotFileHandler();
+		if (request.find("Upgrade") != request.end() && Poco::icompare(request["Upgrade"], "websocket") == 0) {
+			return new WebSocketRequestHandler;
 		}
-
-		return new FileRequestHandler();
+				
+		return new DummyRequestHandler;
 	}
 };
 
 int main()
 {
-	// 클라이언트의 최대 동시 접속자 수
-	int maxThreads = 1;
-
-	// 접속 스레드 풀 수 설정
-	Poco::ThreadPool::defaultPool().addCapacity(maxThreads);
-
-
-	// 설정 값 클래스
-	Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
-
-	// 요구 대기 최대 수
-	pParams->setMaxQueued(100);
-
-	// 최대 동시 처리 수
-	pParams->setMaxThreads(maxThreads);
-	
-	
 	// 서버의 port는 19980 
 	Poco::Net::ServerSocket svs(19980);
 
-	// HTTP 서버 클래스 인스턴스
-	Poco::Net::HTTPServer    srv(new SimpleRequestHandlerFactory(), svs, pParams);
+	Poco::Net::HTTPServerParams* pParams = new Poco::Net::HTTPServerParams;
+	Poco::Timespan timeout(300, 0); // 300초
+	pParams->setTimeout(timeout);
+	
+		// HTTP 서버 클래스 인스턴스
+	Poco::Net::HTTPServer srv(new SimpleRequestHandlerFactory(), svs, pParams);
 
 	
 	// 서버 시작
