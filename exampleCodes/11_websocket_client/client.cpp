@@ -12,35 +12,42 @@
 
 
 int main()
-{
-	char buffer[1024];
+{	
 	int flags;
-	int n;
-	std::string payload;
-
+		
 	try
 	{
-		Poco::Net::HTTPClientSession cs("localhost", 8080);
+		Poco::Net::HTTPClientSession cs("localhost", 19980);
 		Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, "/ws", "HTTP/1.1");
 		Poco::Net::HTTPResponse response;
 		std::string cmd;
 
 		Poco::Net::WebSocket * ws = new Poco::Net::WebSocket(cs, request, response); 
 
-		payload = "SGClient: Hello World!";
+		std::string payload = "SGClient: Hello World!";
 		ws->sendFrame(payload.data(), payload.size(), Poco::Net::WebSocket::FRAME_TEXT);
-		n = ws->receiveFrame(buffer, sizeof(buffer), flags);
 
-		while (cmd != "exit")
+		char buffer[1024] = { 0, };
+		int recvDataSize = ws->receiveFrame(buffer, sizeof(buffer), flags);
+		std::cout << "[recv]" << buffer << std::endl;
+
+		while (true)
 		{
 			cmd = "";
 			std::cin >> cmd;
-			ws->sendFrame(cmd.data(), cmd.size(), Poco::Net::WebSocket::FRAME_TEXT);
-			
-			n = ws->receiveFrame(buffer, sizeof(buffer), flags);
-			if (n > 0)
+
+			if (cmd == "exit")
 			{
-				std::cout << buffer << std::endl;
+				break;
+			}
+
+			ws->sendFrame(cmd.data(), cmd.size(), Poco::Net::WebSocket::FRAME_TEXT);
+		
+			char buffer[1024] = { 0, };
+			int recvDataSize = ws->receiveFrame(buffer, sizeof(buffer), flags);
+			if (recvDataSize > 0)
+			{
+				std::cout << "[recv]" << buffer << std::endl;
 			}
 		}
 

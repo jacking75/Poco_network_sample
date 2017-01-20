@@ -22,23 +22,29 @@ public:
 			std::cout << "WebSocket connection established" << std::endl;
 			
 			int flags = 0;
-			int n = 0;
+			int recvDataSize = 0;
 
-			do
+			while(true)
 			{
 				char buffer[1024] = { 0, };
 				
-				n = ws.receiveFrame(buffer, sizeof(buffer), flags);
+				recvDataSize = ws.receiveFrame(buffer, sizeof(buffer), flags);
 				
-				if (n > 0)
+				if (recvDataSize > 0)
 				{
 					char log[1024] = { 0, };
-					sprintf_s(log, 1024, "Frame received (length=%d, flags=0x%x).", n, unsigned(flags));
+					sprintf_s(log, 1024, "Frame received (length=%d, flags=0x%x): %s", recvDataSize, unsigned(flags), buffer);
 					std::cout << log << std::endl;
 
-					ws.sendFrame(buffer, n, flags);
+					ws.sendFrame(buffer, recvDataSize, flags);
 				}
-			} while (n > 0 || (flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE);
+
+				if (recvDataSize <= 0 ||
+					(flags & Poco::Net::WebSocket::FRAME_OP_BITMASK) != Poco::Net::WebSocket::FRAME_OP_CLOSE)
+				{
+					break;
+				}
+			};
 			
 			std::cout << "WebSocket connection closed." << std::endl;
 		}
