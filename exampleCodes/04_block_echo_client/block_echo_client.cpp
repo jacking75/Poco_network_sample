@@ -1,4 +1,4 @@
-#include "Poco/Net/Net.h"
+//#include "Poco/Net/Net.h"
 #include "Poco/Net/StreamSocket.h"
 #include "Poco/Net/SocketAddress.h"
 
@@ -18,7 +18,7 @@ int main()
 		{
 			char szMessage[128] = { 0, };
 			sprintf_s(szMessage, 128 - 1, "%d - Send Message", i);
-			int nMsgLen = strnlen_s(szMessage, 128 - 1);
+			int nMsgLen = (int)strnlen_s(szMessage, 128 - 1);
 
 			ss.sendBytes(szMessage, nMsgLen);
 
