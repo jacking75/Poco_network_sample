@@ -43,7 +43,7 @@ public:
 			if (n > 0)
 			{
 				char szSendMessage[256] = { 0, };
-				sprintf_s(szSendMessage, 128 - 1, "Re:%s", buffer);
+				sprintf_s(szSendMessage, 256 - 1, "Re:%s", buffer);
 				int nMsgLen = (int)strnlen_s(szSendMessage, 256 - 1);
 
 				m_Socket.sendBytes(szSendMessage, nMsgLen);
@@ -59,7 +59,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			std::cerr << "EchoServer: " << exc.displayText() << std::endl;
+			std::cout << "EchoServer: " << exc.displayText() << std::endl;
 
 			m_Socket.shutdown();
 			delete this;  

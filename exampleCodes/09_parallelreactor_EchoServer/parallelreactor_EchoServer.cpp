@@ -17,7 +17,7 @@ public:
 		m_reactor.addEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable));
 
-		//Poco::Thread::sleep(10000); 주석을 풀명 10초간 다른 클라이언트 접속 처리를 대기
+		//Poco::Thread::sleep(10000); 주석을 풀면 10초간 다른 클라이언트 접속 처리를 대기
 	}
 
 	~Session()

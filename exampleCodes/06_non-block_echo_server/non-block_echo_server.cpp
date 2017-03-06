@@ -55,7 +55,7 @@ int main()
 
 
 					char szSendMessage[256] = { 0, };
-					sprintf_s(szSendMessage, 128 - 1, "Re:%s", buffer);
+					sprintf_s(szSendMessage, 256 - 1, "Re:%s", buffer);
 					int nMsgLen = strnlen_s(szSendMessage, 256 - 1);
 
 					((Poco::Net::StreamSocket*)&readSock)->sendBytes(szSendMessage, nMsgLen);

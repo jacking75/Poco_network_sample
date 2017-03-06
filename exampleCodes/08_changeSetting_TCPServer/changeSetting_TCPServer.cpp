@@ -27,7 +27,7 @@ public:
 
 
 				char szSendMessage[256] = { 0, };
-				sprintf_s(szSendMessage, 128 - 1, "Re:%s", buffer);
+				sprintf_s(szSendMessage, 256 - 1, "Re:%s", buffer);
 				int nMsgLen = (int)strnlen_s(szSendMessage, 256 - 1);
 
 				socket().sendBytes(szSendMessage, nMsgLen);
@@ -37,7 +37,7 @@ public:
 		}
 		catch (Poco::Exception& exc)
 		{
-			std::cerr << "Session: " << exc.displayText() << std::endl;
+			std::cout << "Session: " << exc.displayText() << std::endl;
 		}
 	}
 };

@@ -34,7 +34,7 @@ int main()
 		}
 		catch (Poco::Exception& exc)
 		{
-			std::cerr << "UDPEchoServer: " << exc.displayText() << std::endl;
+			std::cout << "UDPEchoServer: " << exc.displayText() << std::endl;
 		}
 	}
 		
