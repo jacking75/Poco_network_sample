@@ -1,6 +1,3 @@
-#include <string>
-#include <iostream>
-
 #include <Poco/Net/HTTPServerRequest.h>
 #include <Poco/Net/HTTPServerResponse.h>
 #include <Poco/Net/HTTPClientSession.h>
