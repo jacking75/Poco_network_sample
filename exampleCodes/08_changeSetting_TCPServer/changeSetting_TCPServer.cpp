@@ -1,4 +1,5 @@
 #include <iostream>
+#include <mutex>
 
 #include <Poco/Net/TCPServer.h>
 #include <Poco/Net/TCPServerConnection.h>
@@ -50,8 +51,18 @@ public:
 
 	virtual Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket &socket)
 	{
+		m_mtx.lock();
+		++m_ConnectedCount;
+
+		std::cout << m_ConnectedCount << "번째 클라이언트와 연결!!" << std::endl;
+		m_mtx.unlock();
+
 		return new Session(socket);
 	}
+
+private:
+	int m_ConnectedCount = 0;
+	std::mutex m_mtx;
 };
 
 void PrintServerStatus(Poco::Net::TCPServer& server)
@@ -73,7 +84,7 @@ int main()
 	auto pParams = new Poco::Net::TCPServerParams;
 	pParams->setMaxThreads(4);
 	pParams->setMaxQueued(4);
-	
+		
 	Poco::Net::TCPServer server(new SessionFactory(), sock, pParams);
 
 	std::cout << "Simple TCP Server Application." << std::endl;
