@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iniFileRead", "iniFileRead.vcxproj", "{29AE68E3-B574-438A-8CD3-F61008FFA082}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Debug|x64.ActiveCfg = Debug|x64
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Debug|x64.Build.0 = Debug|x64
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Debug|x86.ActiveCfg = Debug|Win32
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Debug|x86.Build.0 = Debug|Win32
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Release|x64.ActiveCfg = Release|x64
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Release|x64.Build.0 = Release|x64
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Release|x86.ActiveCfg = Release|Win32
+		{29AE68E3-B574-438A-8CD3-F61008FFA082}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84A3CAD7-0E0A-4D58-8F55-C73AAA242E35}
+	EndGlobalSection
+EndGlobal
