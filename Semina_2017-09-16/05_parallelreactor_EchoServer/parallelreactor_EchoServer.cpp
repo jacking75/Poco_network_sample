@@ -1,5 +1,8 @@
 #include <iostream>
 
+#pragma comment(lib, "ws2_32")
+#pragma comment(lib, "IPHLPAPI.lib")  
+
 #define POCO_STATIC
 #include <Poco/Net/SocketReactor.h>
 #include <Poco/Net/ParallelSocketAcceptor.h>
