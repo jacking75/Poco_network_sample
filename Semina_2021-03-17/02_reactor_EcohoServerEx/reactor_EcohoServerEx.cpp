@@ -5,7 +5,7 @@
 #include <Poco/Net/SocketAcceptor.h>
 
 
-const Poco::UInt16 PORT = 32452;
+const Poco::UInt16 PORT = 11021;
 
 
 class Session {

@@ -5,7 +5,7 @@
 #include "Poco/Net/SocketAddress.h"
 
 
-const Poco::UInt16 PORT = 32452;
+const Poco::UInt16 PORT = 11021;
 
 int main()
 {
