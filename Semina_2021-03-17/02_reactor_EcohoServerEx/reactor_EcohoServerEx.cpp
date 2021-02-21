@@ -69,19 +69,27 @@ public:
 	{
 		pNf->release();
 
-		char buffer[256] = { 0, };
-		int n = m_Socket.receiveBytes(buffer, sizeof(buffer));
-		if (n > 0)
+		try
 		{
-			std::cout << "클라이언트에서 받은 메시지: " << buffer << std::endl;
+			char buffer[256] = { 0, };
+			int n = m_Socket.receiveBytes(buffer, sizeof(buffer));
+			if (n > 0)
+			{
+				std::cout << "클라이언트에서 받은 메시지: " << buffer << std::endl;
 
-			char szSendMessage[256] = { 0, };
-			sprintf_s(szSendMessage, 256 - 1, "Re:%s", buffer);
-			int nMsgLen = (int)strnlen_s(szSendMessage, 256 - 1);
+				char szSendMessage[256] = { 0, };
+				sprintf_s(szSendMessage, 256 - 1, "Re:%s", buffer);
+				int nMsgLen = (int)strnlen_s(szSendMessage, 256 - 1);
 
-			m_Socket.sendBytes(szSendMessage, nMsgLen);
+				m_Socket.sendBytes(szSendMessage, nMsgLen);
+			}
+			else
+			{
+				m_Socket.shutdownSend();
+				delete this;
+			}
 		}
-		else
+		catch (Poco::Exception ex)
 		{
 			m_Socket.shutdownSend();
 			delete this;
