@@ -93,21 +93,7 @@ namespace csharp_test_client
             Network.Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(textSendText.Text))
-            {
-                MessageBox.Show("보낼 텍스트를 입력하세요");
-                return;
-            }
-                        
-            List<byte> dataSource = new List<byte>();
-            dataSource.AddRange(Encoding.UTF8.GetBytes(textSendText.Text));
-
-            SendPacketQueue.Enqueue(dataSource.ToArray());
-        }
-
-
+       
 
         void NetworkReadProcess()
         {
@@ -314,6 +300,29 @@ namespace csharp_test_client
         }
 
 
+
+        // 에코 - 텍스트 보내기
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(textSendText.Text))
+            {
+                MessageBox.Show("보낼 텍스트를 입력하세요");
+                return;
+            }
+
+            List<byte> dataSource = new List<byte>();
+            dataSource.AddRange(Encoding.UTF8.GetBytes(textSendText.Text));
+
+            SendPacketQueue.Enqueue(dataSource.ToArray());
+        }
+
+        // 에코 - 패킷으로 보내기
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            PostSendPacket(PACKET_ID.DEV_ECHO, Encoding.UTF8.GetBytes(textSendText.Text));
+            DevLog.Write($"에코 패킷 보내기:  {textSendText.Text}");
+        }
+
         // 로그인 요청
         private void button2_Click(object sender, EventArgs e)
         {
@@ -367,23 +376,8 @@ namespace csharp_test_client
             //DevLog.Write($"방 릴레이 요청");
         }
 
-        // 로비 리스트 요청
-        private void button3_Click(object sender, EventArgs e)
-        {
-            PostSendPacket(PACKET_ID.LOBBY_LIST_REQ, null);
-            DevLog.Write($"방 릴레이 요청");
-        }
+  
 
-        // 로비 입장 요청
-        private void button4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        // 로비 나가기 요청
-        private void button5_Click(object sender, EventArgs e)
-        {
-
-        }
+       
     }
 }

@@ -13,17 +13,21 @@
 		~PacketManager() = default;
 
 		void Init(const int maxSessionCount);
-		void ProcessRecvPacket(INT32 connectionIndex, char* pBuf, INT16 copySize);
-		void ProcessLogin(INT32 connIndex, char* pBuf, INT16 copySize);
-		void ProcessEnterRoom(INT32 connIndex, char* pBuf, INT16 copySize);
-		void ProcessLeaveRoom(INT32 connIndex, char* pBuf, INT16 copySize);
-		void ProcessRoomChatMessage(INT32 connIndex, char* pBuf, INT16 copySize);
+		
+		void Process(INT32 connectionIndex, const UINT16 packetID, char* pBuf, INT16 bodySize);
+		
+		void ProcessDevEcho(INT32 connIndex, char* pBodyData, INT16 bodySize);
+
+		void ProcessLogin(INT32 connIndex, char* pBodyData, INT16 bodySize);
+		void ProcessEnterRoom(INT32 connIndex, char* pBodyData, INT16 bodySize);
+		void ProcessLeaveRoom(INT32 connIndex, char* pBodyData, INT16 bodySize);
+		void ProcessRoomChatMessage(INT32 connIndex, char* pBodyData, INT16 bodySize);
 		
 
 		void ClearConnectionInfo(INT32 connIndex);
 		
 
-		std::function<void(const int, const int, char*)> SendPacketFunc;
+		std::function<void(const int, const char*, const int)> SendPacketFunc;
 
 
 	private:

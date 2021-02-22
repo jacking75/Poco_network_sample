@@ -25,7 +25,7 @@
 		void NotifyChat(Poco::Int32 connIndex, const char* UserID, const char* Msg);
 		
 		
-		std::function<void(const int, const int, char*)> SendPacketFunc;
+		std::function<void(const int, const char*, const int)> SendPacketFunc;
 
 	private:
 		void SendToAllUser(const Poco::UInt16 dataSize, void* pData, const Poco::Int32 passUserindex, bool exceptMe);

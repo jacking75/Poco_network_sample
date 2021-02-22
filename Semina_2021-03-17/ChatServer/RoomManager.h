@@ -62,7 +62,7 @@
 		} 
 
 		
-		std::function<void(const int, const int, char*)> SendPacketFunc;
+		std::function<void(const int, const char*, const int)> SendPacketFunc;
 		
 
 	private:

@@ -9,17 +9,17 @@
 struct RecvPacketInfo
 {
 	int SessionIndex = 0;
-	short PacketID = 0;
-	short PacketBodySize = 0;
-	char* pRefData = 0;
+	UINT16 PacketID = 0;
+	UINT16 PacketBodySize = 0;
+	char* pBodyData = 0;
 };
 
 
 #pragma pack(push, 1)
 struct PACKET_HEADER
 {
-	UINT16 PacketLength;
-	UINT16 PacketId;
+	UINT16 PacketSize;
+	UINT16 PacketID;
 	UINT8 Type; //압축여부 암호화여부 등 속성을 알아내는 값
 };
 

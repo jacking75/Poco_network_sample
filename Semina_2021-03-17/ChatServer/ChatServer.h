@@ -68,7 +68,10 @@ public:
 				{
 					if (packetInfo.PacketID > (short)PACKET_ID::INTERNAL_END)
 					{
-						//m_pPacketProc->Process(packetInfo);
+						mPacketManager.Process(packetInfo.SessionIndex,
+							packetInfo.PacketID,
+							packetInfo.pBodyData, 
+												packetInfo.PacketBodySize);
 					}
 					else if (packetInfo.PacketID == (short)PACKET_ID::INTERNAL_CLOSE)
 					{
@@ -89,9 +92,9 @@ private:
 		};
 		Session::OnConnection = onConnectFunc;
 
-		auto onCloseFunc = [&](Session* sock)
+		auto onCloseFunc = [&](Session* pSession)
 		{
-			this->OnClose(sock);
+			this->OnClose(pSession);
 		};
 		Session::OnClose = onCloseFunc;
 
@@ -101,9 +104,9 @@ private:
 		};
 		Session::AddPacketFunc = addPacketFunc;
 
-		auto sendPacketFunc = [&](const int sessionIndex, const int dataSize, char* pData)
+		auto sendPacketFunc = [&](const int sessionIndex, const char* pData, const int dataSize)
 		{
-			this->SendPacket(sessionIndex, dataSize, pData);
+			this->SendPacket(sessionIndex, pData, dataSize);
 		};
 		mPacketManager.SendPacketFunc = sendPacketFunc;
 	}
@@ -127,7 +130,7 @@ private:
 		packetInfo.SessionIndex = sessionIndex;
 		packetInfo.PacketID = pktID;
 		packetInfo.PacketBodySize = bodySize;
-		packetInfo.pRefData = pDataPos;
+		packetInfo.pBodyData = pDataPos;
 
 		m_PacketQueue.push_back(packetInfo);
 	}
@@ -159,12 +162,14 @@ private:
 
 	void UnRegisterSesssion(const int index)
 	{
+		delete mSessions[index];
 		mSessions[index] = nullptr;
 		FreeSessionIndex(index);
 	}
 
-	void SendPacket(const int sessionIndex, const int dataSize, char* pData)
+	void SendPacket(const int sessionIndex, const char* pData, const int size)
 	{
+		mSessions[sessionIndex]->SendPacket(pData, size);
 	}
 
 	std::optional<int> AllocSesionIndex()

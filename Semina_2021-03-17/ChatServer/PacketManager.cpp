@@ -16,6 +16,8 @@
 
 		m_RecvFuntionDictionary = std::unordered_map<int, PROCESS_RECV_PACKET_FUNCTION>();
 
+		m_RecvFuntionDictionary[(int)PACKET_ID::DEV_ECHO] = &PacketManager::ProcessDevEcho;
+
 		m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
 		m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
 		m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
@@ -24,33 +26,44 @@
 
 
 
-	void PacketManager::ProcessRecvPacket(INT32 connectionIndex, char* pBuf, INT16 copySize) 
+	void PacketManager::Process(const INT32 connectionIndex, const UINT16 packetID, char* pBodyData, INT16 bodySize) 
 	{
-		PACKET_HEADER* pHeader = reinterpret_cast<PACKET_HEADER*>(pBuf);
-
-		auto iter = m_RecvFuntionDictionary.find(pHeader->PacketId);
+		auto iter = m_RecvFuntionDictionary.find(packetID);
 		if (iter != m_RecvFuntionDictionary.end())
 		{
-			(this->*(iter->second))(connectionIndex, pBuf, copySize);
+			(this->*(iter->second))(connectionIndex, pBodyData, bodySize);
 		}
 
 	}
 		
-	void PacketManager::ProcessLogin(const INT32 connIndex, char* pBuf, INT16 copySize) 
+	void PacketManager::ProcessDevEcho(INT32 connIndex, char* pBodyData, INT16 bodySize)
+	{
+		auto packetID = (UINT16)PACKET_ID::DEV_ECHO;
+		auto packetSize = (UINT16)(bodySize + sizeof(PACKET_HEADER));
+		char echoData[1024] = { 0, };
+
+		CopyMemory(&echoData, (char*)&packetSize, 2);
+		CopyMemory(&echoData[2], (char*)&packetID, 2);
+		CopyMemory(&echoData[5], pBodyData, bodySize);
+
+		SendPacketFunc(connIndex, echoData, packetSize);
+	}
+
+	void PacketManager::ProcessLogin(const INT32 connIndex, char* pBodyData, INT16 bodySize)
 	{ 
-		if (LOGIN_REQUEST_PACKET_SZIE != copySize)
+		if (LOGIN_REQUEST_PACKET_SZIE != bodySize)
 		{
 			return;
 		}
 
-		auto pLoginReqPacket = reinterpret_cast<LOGIN_REQUEST_PACKET*>(pBuf);
+		auto pLoginReqPacket = reinterpret_cast<LOGIN_REQUEST_PACKET*>(pBodyData);
 
 		auto pUserID = pLoginReqPacket->UserID;
 		printf("requested user id = %s\n", pUserID);
 
 		LOGIN_RESPONSE_PACKET loginResPacket;
-		loginResPacket.PacketId = (UINT16)PACKET_ID::LOGIN_RESPONSE;
-		loginResPacket.PacketLength = sizeof(LOGIN_RESPONSE_PACKET);
+		loginResPacket.PacketID = (UINT16)PACKET_ID::LOGIN_RESPONSE;
+		loginResPacket.PacketSize = sizeof(LOGIN_RESPONSE_PACKET);
 
 		if (mUserManager.GetCurrentUserCnt() >= mUserManager.GetMaxUserCnt())
 		{ 
@@ -81,11 +94,11 @@
 
 
 
-	void PacketManager::ProcessEnterRoom(INT32 connIndex, char* pBuf, INT16 copySize) 
+	void PacketManager::ProcessEnterRoom(INT32 connIndex, char* pBodyData, INT16 bodySize)
 	{
-		UNREFERENCED_PARAMETER(copySize);
+		UNREFERENCED_PARAMETER(bodySize);
 
-		auto pRoomEnterReqPacket = reinterpret_cast<ROOM_ENTER_REQUEST_PACKET*>(pBuf);
+		auto pRoomEnterReqPacket = reinterpret_cast<ROOM_ENTER_REQUEST_PACKET*>(pBodyData);
 		auto pReqUser = mUserManager.GetUserByConnIdx(connIndex);
 
 		if (!pReqUser || pReqUser == nullptr) 
@@ -94,8 +107,8 @@
 		}
 				
 		ROOM_ENTER_RESPONSE_PACKET roomEnterResPacket;
-		roomEnterResPacket.PacketId = (UINT16)PACKET_ID::ROOM_ENTER_RESPONSE;
-		roomEnterResPacket.PacketLength = sizeof(ROOM_ENTER_RESPONSE_PACKET);
+		roomEnterResPacket.PacketID = (UINT16)PACKET_ID::ROOM_ENTER_RESPONSE;
+		roomEnterResPacket.PacketSize = sizeof(ROOM_ENTER_RESPONSE_PACKET);
 				
 		roomEnterResPacket.Result = mRoomManager.EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
 
@@ -104,14 +117,14 @@
 	}
 
 
-	void PacketManager::ProcessLeaveRoom(INT32 connIndex, char* pBuf, INT16 copySize) 
+	void PacketManager::ProcessLeaveRoom(INT32 connIndex, char* pBodyData, INT16 copySize) 
 	{
-		UNREFERENCED_PARAMETER(pBuf);
+		UNREFERENCED_PARAMETER(pBodyData);
 		UNREFERENCED_PARAMETER(copySize);
 
 		ROOM_LEAVE_RESPONSE_PACKET roomLeaveResPacket;
-		roomLeaveResPacket.PacketId = (UINT16)PACKET_ID::ROOM_LEAVE_RESPONSE;
-		roomLeaveResPacket.PacketLength = sizeof(ROOM_LEAVE_RESPONSE_PACKET);
+		roomLeaveResPacket.PacketID = (UINT16)PACKET_ID::ROOM_LEAVE_RESPONSE;
+		roomLeaveResPacket.PacketSize = sizeof(ROOM_LEAVE_RESPONSE_PACKET);
 
 		auto reqUser = mUserManager.GetUserByConnIdx(connIndex);
 		auto roomNum = reqUser->GetCurrentRoom();
@@ -122,15 +135,15 @@
 	}
 
 
-	void PacketManager::ProcessRoomChatMessage(INT32 connIndex, char* pBuf, INT16 copySize) 
+	void PacketManager::ProcessRoomChatMessage(INT32 connIndex, char* pBodyData, INT16 bodySize)
 	{
-		UNREFERENCED_PARAMETER(copySize);
+		UNREFERENCED_PARAMETER(bodySize);
 
-		auto pRoomChatReqPacketet = reinterpret_cast<ROOM_CHAT_REQUEST_PACKET*>(pBuf);
+		auto pRoomChatReqPacketet = reinterpret_cast<ROOM_CHAT_REQUEST_PACKET*>(pBodyData);
 		
 		ROOM_CHAT_RESPONSE_PACKET roomChatResPacket;
-		roomChatResPacket.PacketId = (UINT16)PACKET_ID::ROOM_CHAT_RESPONSE;
-		roomChatResPacket.PacketLength = sizeof(ROOM_CHAT_RESPONSE_PACKET);
+		roomChatResPacket.PacketID = (UINT16)PACKET_ID::ROOM_CHAT_RESPONSE;
+		roomChatResPacket.PacketSize = sizeof(ROOM_CHAT_RESPONSE_PACKET);
 		roomChatResPacket.Result = (INT16)ERROR_CODE::NONE;
 
 		auto reqUser = mUserManager.GetUserByConnIdx(connIndex);

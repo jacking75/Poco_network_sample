@@ -16,5 +16,6 @@
     <ClInclude Include="RoomManager.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserManager.h" />
+    <ClInclude Include="RecvRingBuffer.h" />
   </ItemGroup>
 </Project>

@@ -158,6 +158,7 @@
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketID.h" />
     <ClInclude Include="PacketManager.h" />
+    <ClInclude Include="RecvRingBuffer.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="RoomManager.h" />
     <ClInclude Include="Session.h" />

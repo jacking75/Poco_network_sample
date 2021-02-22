@@ -34,8 +34,8 @@
 	void Room::NotifyChat(Poco::Int32 connIndex, const char* UserID, const char* Msg)
 	{
 		ROOM_CHAT_NOTIFY_PACKET roomChatNtfyPkt;
-		roomChatNtfyPkt.PacketId = (UINT16)PACKET_ID::ROOM_CHAT_NOTIFY;
-		roomChatNtfyPkt.PacketLength = sizeof(roomChatNtfyPkt);
+		roomChatNtfyPkt.PacketID = (UINT16)PACKET_ID::ROOM_CHAT_NOTIFY;
+		roomChatNtfyPkt.PacketSize = sizeof(roomChatNtfyPkt);
 
 		CopyMemory(roomChatNtfyPkt.Msg, Msg, sizeof(roomChatNtfyPkt.Msg));
 		CopyMemory(roomChatNtfyPkt.UserID, UserID, sizeof(roomChatNtfyPkt.UserID));
