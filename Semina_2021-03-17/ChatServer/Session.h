@@ -50,8 +50,6 @@ public:
 			int recvSize = m_socket.receiveBytes(pBuffer, 1024);
 			if (recvSize > 0)
 			{
-				//pBuffer[recvSize] = '\0';
-				//std::cout << "클라이언트에서 받은 메시지: " << pBuffer << std::endl;				
 				auto [remainSize, pRemainData ] = mRecvBuffer.GetReceiveData(recvSize);
 								
 				auto deliveredSize = ToPacketProcess(remainSize, pRemainData);
