@@ -18,15 +18,15 @@
 		
 		void ProcessDevEcho(INT32 connIndex, char* pBodyData, INT16 bodySize);
 
+		void ProcessDisConnected(INT32 connIndex, char* pBodyData, INT16 bodySize);
+
 		void ProcessLogin(INT32 connIndex, char* pBodyData, INT16 bodySize);
 		void ProcessEnterRoom(INT32 connIndex, char* pBodyData, INT16 bodySize);
 		void ProcessLeaveRoom(INT32 connIndex, char* pBodyData, INT16 bodySize);
 		void ProcessRoomChatMessage(INT32 connIndex, char* pBodyData, INT16 bodySize);
 		
 
-		void ClearConnectionInfo(INT32 connIndex);
-		
-
+	
 		std::function<void(const int, const char*, const int)> SendPacketFunc;
 
 

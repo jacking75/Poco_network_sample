@@ -13,7 +13,7 @@ public:
 		m_socket(socket),
 		m_reactor(reactor)
 	{
-		mRecvBuffer.Create(32);//TODO 1024*8·Î ¹Ù²Û´Ù
+		mRecvBuffer.Create(1024*8);
 
 		m_peerAddress = socket.peerAddress().toString();
 		std::cout << "connection from " << m_peerAddress << " ..." << std::endl;
@@ -32,7 +32,7 @@ public:
 
 	static std::function<void(Session*)> OnConnection;
 	static std::function<void(Session*)> OnClose;
-	static std::function<void(const int, const short, const short, char*)> AddPacketFunc;
+	static std::function<void(const bool, const int, const short, const short, char*)> AddPacketFunc;
 
 
 	void SetIndex(const int index) { mIndex = index; }
@@ -71,6 +71,11 @@ public:
 
 	void SendPacket(const char* pData, const int size)
 	{
+		if (mIsConnected == false)
+		{
+			return;
+		}
+
 		m_socket.sendBytes(pData, size);
 	}
 
@@ -106,7 +111,7 @@ private:
 
 			auto bodySize = pHeader->PacketSize - PACKET_HEADER_LENGTH;
 			auto packetID = pBuffer[PACKET_SIZE_LENGTH];
-			AddPacketFunc(mIndex, pHeader->PacketID, bodySize, &pBuffer[PACKET_HEADER_LENGTH]);
+			AddPacketFunc(false, mIndex, pHeader->PacketID, bodySize, &pBuffer[PACKET_HEADER_LENGTH]);
 						
 			remainByte -= pHeader->PacketSize;
 			totalReadSize += pHeader->PacketSize;
@@ -119,6 +124,8 @@ private:
 
 	void Close()
 	{
+		mIsConnected = false;
+
 		m_socket.close();
 
 		m_reactor.removeEventHandler(m_socket,
@@ -133,10 +140,10 @@ private:
 	Poco::Net::SocketReactor& m_reactor;
 
 	int mIndex;
-
+	bool mIsConnected = true;
 	RecvRingBuffer mRecvBuffer;
 };
 
 inline std::function<void(Session*)> Session::OnConnection;
 inline std::function<void(Session*)> Session::OnClose;
-inline std::function<void(const int, const short, const short, char*)> Session::AddPacketFunc;
+inline std::function<void(const bool, const int, const short, const short, char*)> Session::AddPacketFunc;

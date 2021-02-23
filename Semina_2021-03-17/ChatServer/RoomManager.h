@@ -37,15 +37,14 @@
 			return pRoom->EnterUser(pUser);
 		}
 		
-		INT16 LeaveUser(Poco::Int32 roomNumber, User* pUser)
+		INT16 LeaveUser(Poco::Int32 roomIndex, User* pUser)
 		{
-			auto pRoom = GetRoomByNumber(roomNumber);
+			auto pRoom = GetRoomByNumber(roomIndex);
 			if (pRoom == nullptr)
 			{
 				return (Poco::Int16)ERROR_CODE::ROOM_INVALID_INDEX;
 			}
 			
-			pUser->SetDomainState(User::DOMAIN_STATE::LOGIN);
 			pRoom->LeaveUser(pUser);
 			return (Poco::Int16)ERROR_CODE::NONE;
 		}

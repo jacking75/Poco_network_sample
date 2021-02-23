@@ -29,6 +29,8 @@
 		m_UserList.remove_if([leaveUserId = pLeaveUser->GetUserId()](User *pUser) {
 									return leaveUserId == pUser->GetUserId();
 								});
+
+		pLeaveUser->LeaveRoom();
 	}
 			
 	void Room::NotifyChat(Poco::Int32 connIndex, const char* UserID, const char* Msg)
@@ -39,11 +41,11 @@
 
 		CopyMemory(roomChatNtfyPkt.Msg, Msg, sizeof(roomChatNtfyPkt.Msg));
 		CopyMemory(roomChatNtfyPkt.UserID, UserID, sizeof(roomChatNtfyPkt.UserID));
-		SendToAllUser(sizeof(roomChatNtfyPkt), &roomChatNtfyPkt, connIndex, false);
+		SendToAllUser(sizeof(roomChatNtfyPkt), (char*)&roomChatNtfyPkt, -1, false);
 	}
 
 
-	void Room::SendToAllUser(const Poco::UInt16 dataSize, void* pData, const Poco::Int32 passUserindex, bool exceptMe)
+	void Room::SendToAllUser(const Poco::UInt16 dataSize, const char* pData, const Poco::Int32 passUserindex, bool exceptMe)
 	{
 
 		for (auto pUser : m_UserList)
@@ -56,6 +58,6 @@
 				continue;
 			}
 						
-			//SendPacketFunc(pUser->GetNetConnIdx(), pData, dataSize);
+			SendPacketFunc(pUser->GetNetConnIdx(), pData, dataSize);
 		}
 	}

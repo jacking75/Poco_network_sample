@@ -24,16 +24,14 @@ struct PACKET_HEADER
 };
 
 //- 로그인 요청
-const int MAX_USER_ID_LEN = 20;
-const int MAX_USER_PW_LEN = 20;
+const int MAX_USER_ID_LEN = 16;
+const int MAX_USER_PW_LEN = 16;
 
-struct LOGIN_REQUEST_PACKET : public PACKET_HEADER
+struct LOGIN_REQUEST_PACKET
 {
-	char UserID[MAX_USER_ID_LEN + 1];
-	char UserPW[MAX_USER_PW_LEN + 1];
+	char UserID[MAX_USER_ID_LEN];
+	char UserPW[MAX_USER_PW_LEN];
 };
-const size_t LOGIN_REQUEST_PACKET_SZIE = sizeof(LOGIN_REQUEST_PACKET);
-
 
 struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
 {
@@ -44,7 +42,7 @@ struct LOGIN_RESPONSE_PACKET : public PACKET_HEADER
 
 //- 룸에 들어가기 요청
 const int MAX_ROOM_TITLE_SIZE = 16;
-struct ROOM_ENTER_REQUEST_PACKET : public PACKET_HEADER
+struct ROOM_ENTER_REQUEST_PACKET
 {
 	INT32 RoomNumber;
 };
@@ -57,9 +55,8 @@ struct ROOM_ENTER_RESPONSE_PACKET : public PACKET_HEADER
 
 
 //- 룸 나가기 요청
-struct ROOM_LEAVE_REQUEST_PACKET : public PACKET_HEADER
+struct ROOM_LEAVE_REQUEST_PACKET
 {
-
 };
 
 struct ROOM_LEAVE_RESPONSE_PACKET : public PACKET_HEADER
@@ -71,9 +68,9 @@ struct ROOM_LEAVE_RESPONSE_PACKET : public PACKET_HEADER
 
 // 룸 채팅
 const int MAX_CHAT_MSG_SIZE = 256;
-struct ROOM_CHAT_REQUEST_PACKET : public PACKET_HEADER
+struct ROOM_CHAT_REQUEST_PACKET
 {
-	char Message[MAX_CHAT_MSG_SIZE + 1] = { 0, };
+	char Message[MAX_CHAT_MSG_SIZE] = { 0, };
 };
 
 struct ROOM_CHAT_RESPONSE_PACKET : public PACKET_HEADER
@@ -83,8 +80,8 @@ struct ROOM_CHAT_RESPONSE_PACKET : public PACKET_HEADER
 
 struct ROOM_CHAT_NOTIFY_PACKET : public PACKET_HEADER
 {
-	char UserID[MAX_USER_ID_LEN + 1] = { 0, };
-	char Msg[MAX_CHAT_MSG_SIZE + 1] = { 0, };
+	char UserID[MAX_USER_ID_LEN] = { 0, };
+	char Msg[MAX_CHAT_MSG_SIZE] = { 0, };
 };
 
 #pragma pack(pop)

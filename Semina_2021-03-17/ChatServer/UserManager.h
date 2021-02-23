@@ -47,7 +47,7 @@
 			auto user_idx = conn_idx;
 
 			UserObjPool[user_idx]->SetLogin(userID);
-			UserDictionary.insert(std::pair< char*, int>(userID, conn_idx));
+			UserDictionary.insert({userID, conn_idx});
 
 			return ERROR_CODE::NONE;
 		}
@@ -63,7 +63,7 @@
 			return -1;
 		}
 		
-		void DeleteUserInfo(User* deleteUser)
+		void RemoveUserInfo(User* deleteUser)
 		{
 			UserDictionary.erase(deleteUser->GetUserId());
 			deleteUser->Clear();

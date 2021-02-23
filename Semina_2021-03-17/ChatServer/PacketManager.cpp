@@ -18,7 +18,9 @@
 
 		m_RecvFuntionDictionary[(int)PACKET_ID::DEV_ECHO] = &PacketManager::ProcessDevEcho;
 
-		m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;
+		m_RecvFuntionDictionary[(int)PACKET_ID::INTERNAL_CLOSE] = &PacketManager::ProcessDisConnected;
+
+		m_RecvFuntionDictionary[(int)PACKET_ID::LOGIN_REQUEST] = &PacketManager::ProcessLogin;		
 		m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_ENTER_REQUEST] = &PacketManager::ProcessEnterRoom;
 		m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_LEAVE_REQUEST] = &PacketManager::ProcessLeaveRoom;
 		m_RecvFuntionDictionary[(int)PACKET_ID::ROOM_CHAT_REQUEST] = &PacketManager::ProcessRoomChatMessage;				
@@ -49,13 +51,24 @@
 		SendPacketFunc(connIndex, echoData, packetSize);
 	}
 
-	void PacketManager::ProcessLogin(const INT32 connIndex, char* pBodyData, INT16 bodySize)
-	{ 
-		if (LOGIN_REQUEST_PACKET_SZIE != bodySize)
+	void PacketManager::ProcessDisConnected(INT32 connIndex, char* pBodyData, INT16 bodySize)
+	{
+		auto pUser = mUserManager.GetUserByConnIdx(connIndex);
+		if (pUser == nullptr)
 		{
 			return;
 		}
 
+		if (pUser->IsCurInRoom())
+		{
+			mRoomManager.LeaveUser(pUser->GetCurrentRoomIndex(), pUser);
+		}
+
+		mUserManager.RemoveUserInfo(pUser);
+	}
+
+	void PacketManager::ProcessLogin(const INT32 connIndex, char* pBodyData, INT16 bodySize)
+	{ 		
 		auto pLoginReqPacket = reinterpret_cast<LOGIN_REQUEST_PACKET*>(pBodyData);
 
 		auto pUserID = pLoginReqPacket->UserID;
@@ -69,7 +82,7 @@
 		{ 
 			//접속자수가 최대수를 차지해서 접속불가
 			loginResPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_USED_ALL_OBJ;
-			//SendPacketFunc(connIndex, &loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));
+			SendPacketFunc(connIndex, (char*)&loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));
 			return;
 		}
 
@@ -85,11 +98,11 @@
 		{
 			//접속중인 유저여서 실패를 반환한다.
 			loginResPacket.Result = (UINT16)ERROR_CODE::LOGIN_USER_ALREADY;
-			//SendPacketFunc(connIndex, &loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));
+			SendPacketFunc(connIndex, (char*)&loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));
 			return;
 		}
 
-		//SendPacketFunc(connIndex, &loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));				
+		SendPacketFunc(connIndex, (char*)&loginResPacket, sizeof(LOGIN_RESPONSE_PACKET));
 	}
 
 
@@ -105,15 +118,18 @@
 		{
 			return;
 		}
-				
+		
+		//TODO 방에 있는 유저들이 있으면 이 유저들의 정보를 새로운 들어온 유저에게 알린다
+
+		//TODO 방에 유저가 있었다면 이 유저에게 새로 들어온 유저 정보를 알린다
+
 		ROOM_ENTER_RESPONSE_PACKET roomEnterResPacket;
 		roomEnterResPacket.PacketID = (UINT16)PACKET_ID::ROOM_ENTER_RESPONSE;
 		roomEnterResPacket.PacketSize = sizeof(ROOM_ENTER_RESPONSE_PACKET);
 				
 		roomEnterResPacket.Result = mRoomManager.EnterUser(pRoomEnterReqPacket->RoomNumber, pReqUser);
 
-		//SendPacketFunc(connIndex, &roomEnterResPacket, sizeof(ROOM_ENTER_RESPONSE_PACKET));
-		printf("Response Packet Sended");
+		SendPacketFunc(connIndex, (char*)&roomEnterResPacket, sizeof(ROOM_ENTER_RESPONSE_PACKET));
 	}
 
 
@@ -127,11 +143,11 @@
 		roomLeaveResPacket.PacketSize = sizeof(ROOM_LEAVE_RESPONSE_PACKET);
 
 		auto reqUser = mUserManager.GetUserByConnIdx(connIndex);
-		auto roomNum = reqUser->GetCurrentRoom();
+		auto roomNum = reqUser->GetCurrentRoomIndex();
 				
-		//TODO Room안의 UserList객체의 값 확인하기
 		roomLeaveResPacket.Result = mRoomManager.LeaveUser(roomNum, reqUser);
-		//SendPacketFunc(connIndex, &roomLeaveResPacket, sizeof(ROOM_LEAVE_RESPONSE_PACKET));
+		
+		SendPacketFunc(connIndex, (char*)&roomLeaveResPacket, sizeof(ROOM_LEAVE_RESPONSE_PACKET));
 	}
 
 
@@ -147,36 +163,19 @@
 		roomChatResPacket.Result = (INT16)ERROR_CODE::NONE;
 
 		auto reqUser = mUserManager.GetUserByConnIdx(connIndex);
-		auto roomNum = reqUser->GetCurrentRoom();
+		auto roomNum = reqUser->GetCurrentRoomIndex();
 				
 		auto pRoom = mRoomManager.GetRoomByNumber(roomNum);
 		if (pRoom == nullptr)
 		{
 			roomChatResPacket.Result = (INT16)ERROR_CODE::CHAT_ROOM_INVALID_ROOM_NUMBER;
-			//SendPacketFunc(connIndex, &roomChatResPacket, sizeof(ROOM_CHAT_RESPONSE_PACKET));
+			SendPacketFunc(connIndex, (char*)&roomChatResPacket, sizeof(ROOM_CHAT_RESPONSE_PACKET));
 			return;
 		}
-		
-		//SendPacketFunc(connIndex, &roomChatResPacket, sizeof(ROOM_CHAT_RESPONSE_PACKET));
-
+				
 		pRoom->NotifyChat(connIndex, reqUser->GetUserId().c_str(), pRoomChatReqPacketet->Message);		
 	}		   
 
-	void PacketManager::ClearConnectionInfo(INT32 connIndex) 
-	{
-		auto pReqUser = mUserManager.GetUserByConnIdx(connIndex);
-
-		if (pReqUser->GetDomainState() == User::DOMAIN_STATE::ROOM) 
-		{
-			auto roomNum = pReqUser->GetCurrentRoom();
-			mRoomManager.LeaveUser(roomNum, pReqUser);
-		}
-
-		if (pReqUser->GetDomainState() != User::DOMAIN_STATE::NONE) 
-		{
-			mUserManager.DeleteUserInfo(pReqUser);
-		}
-	}
 
 
 

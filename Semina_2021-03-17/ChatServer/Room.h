@@ -22,13 +22,13 @@
 		
 		void LeaveUser(User* pUser);
 						
-		void NotifyChat(Poco::Int32 connIndex, const char* UserID, const char* Msg);
+		void NotifyChat(int connIndex, const char* UserID, const char* Msg);
 		
 		
 		std::function<void(const int, const char*, const int)> SendPacketFunc;
 
 	private:
-		void SendToAllUser(const Poco::UInt16 dataSize, void* pData, const Poco::Int32 passUserindex, bool exceptMe);
+		void SendToAllUser(const Poco::UInt16 dataSize, const char* pData, const Poco::Int32 passUserindex, bool exceptMe);
 
 
 		Poco::Int32 m_RoomNum = -1;

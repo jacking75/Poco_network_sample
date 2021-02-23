@@ -116,11 +116,7 @@ namespace csharp_test_client
             if (errorCode == ERROR_CODE.ERROR_NONE)
             {
                 DevLog.Write(msg, LOG_LEVEL.ERROR);
-            }
-            else
-            {
-                AddRoomChatMessageList(0, msg);
-            }
+            }           
         }
 
 
@@ -129,12 +125,12 @@ namespace csharp_test_client
             var responsePkt = new RoomChatNtfPacket();
             responsePkt.FromBytes(bodyData);
 
-            AddRoomChatMessageList(responsePkt.UserUniqueId, responsePkt.Message);
+            AddRoomChatMessageList(responsePkt.UserID, responsePkt.Message);
         }
 
-        void AddRoomChatMessageList(Int64 userUniqueId, string msgssage)
+        void AddRoomChatMessageList(string userID, string msgssage)
         {
-            var msg = $"{userUniqueId}:  {msgssage}";
+            var msg = $"{userID}:  {msgssage}";
 
             if (listBoxRoomChatMsg.Items.Count > 512)
             {

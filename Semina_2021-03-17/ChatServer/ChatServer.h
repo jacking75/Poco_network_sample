@@ -73,7 +73,8 @@ public:
 							packetInfo.pBodyData, 
 												packetInfo.PacketBodySize);
 					}
-					else if (packetInfo.PacketID == (short)PACKET_ID::INTERNAL_CLOSE)
+					
+					if (packetInfo.PacketID == (short)PACKET_ID::INTERNAL_CLOSE)
 					{
 						UnRegisterSesssion(packetInfo.SessionIndex);
 					}					
@@ -98,9 +99,9 @@ private:
 		};
 		Session::OnClose = onCloseFunc;
 
-		auto addPacketFunc = [&](const int sessionIndex, const short pktID, const short bodySize, char* pDataPos)
+		auto addPacketFunc = [&](const bool bInternal,  const int sessionIndex, const short pktID, const short bodySize, char* pDataPos)
 		{
-			this->AddPacketQueue(sessionIndex, pktID, bodySize, pDataPos);
+			this->AddPacketQueue(bInternal, sessionIndex, pktID, bodySize, pDataPos);
 		};
 		Session::AddPacketFunc = addPacketFunc;
 
@@ -118,12 +119,17 @@ private:
 
 	void OnClose(Session* pSession)
 	{
-		AddPacketQueue(pSession->GetIndex(), (short)PACKET_ID::INTERNAL_CLOSE, 0, nullptr);		
+		AddPacketQueue(true, pSession->GetIndex(), (short)PACKET_ID::INTERNAL_CLOSE, 0, nullptr);		
 	}
 
 
-	void AddPacketQueue(const Poco::Int32 sessionIndex, const short pktID, const short bodySize, char* pDataPos)
+	void AddPacketQueue(const bool bInternal, const Poco::Int32 sessionIndex, const short pktID, const short bodySize, char* pDataPos)
 	{
+		if (bInternal == false && pktID <= (short)PACKET_ID::INTERNAL_END)
+		{
+			return;
+		}
+
 		std::lock_guard<std::mutex> lock(mMutexPacketQueue);
 
 		RecvPacketInfo packetInfo;
@@ -134,7 +140,7 @@ private:
 
 		m_PacketQueue.push_back(packetInfo);
 	}
-
+		
 	RecvPacketInfo GetPacketInfo()
 	{
 		std::lock_guard<std::mutex> lock(mMutexPacketQueue);
