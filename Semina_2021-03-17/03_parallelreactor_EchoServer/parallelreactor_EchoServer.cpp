@@ -21,7 +21,7 @@ public:
 		m_reactor.addEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable));
 
-		//Poco::Thread::sleep(10000); 주석을 풀면 10초간 다른 클라이언트 접속 처리를 대기
+		//Poco::Thread::sleep(5000); //주석을 풀면 5초간 다른 클라이언트 접속 처리를 대기
 	}
 
 	~Session()
@@ -30,9 +30,7 @@ public:
 
 		m_reactor.removeEventHandler(m_socket,
 			Poco::Observer<Session, Poco::Net::ReadableNotification>(*this, &Session::onReadable)
-			);
-
-		//Poco::Thread::sleep(10000);
+			);		
 	}
 
 	void onReadable(Poco::Net::ReadableNotification* pNf)
@@ -53,7 +51,7 @@ public:
 
 				m_socket.sendBytes(szSendMessage, nMsgLen);
 
-				//Poco::Thread::sleep(10000); // 스레드별로 클라이언트 할당되고, 서로 다른 스레드에 접속된 클라이언트는 간섭하지 않는다
+				//Poco::Thread::sleep(5000); // 스레드별로 클라이언트 할당되고, 서로 다른 스레드에 접속된 클라이언트는 간섭하지 않는다
 				std::cout << "onReadable 대기 끝" << buffer << std::endl;
 			}
 			else
